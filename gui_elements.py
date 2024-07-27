@@ -10,15 +10,14 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtGui import QFont
 from aya import Aya
 from quran_data import suras_names, get_sura
+from audio_player import AudioPlayer
 
 font_main = QFont("KFGQPC HAFS Uthmanic Script", 20)
 font_second = QFont("Calibri", 14)
 font_third = QFont("Calibri", 14)
-color1 = "lightgray"
-color2 = "white"
 
 
 class QuranMemorizer(QMainWindow):
@@ -54,6 +53,9 @@ class QuranMemorizer(QMainWindow):
         self.listWidget.setWordWrap(True)
         self.listWidget.setFont(font_main)
         self.verticalLayout.addWidget(self.listWidget)
+
+        self.audio_player = AudioPlayer()
+        self.verticalLayout.addWidget(self.audio_player)
 
         self.btnNext = QPushButton(self.root)
         self.btnNext.setText("السورة التالية")
@@ -95,6 +97,8 @@ class QuranMemorizer(QMainWindow):
                     Qt.AlignRight,
                 )
             )
+        sura_number = suras_names.index(sura)
+        self.audio_player.set_audio(sura_number)
 
     def next_sura(self):
         current_index = self.cb.currentIndex()

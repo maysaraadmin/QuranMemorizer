@@ -1,5 +1,16 @@
 import json
+import os
 
+# Example paths, replace with your actual paths or URLs
+AUDIO_DIR = "audio/Qari1"
+
+qari_styles = {
+    "Qari1": {
+        i: os.path.join(AUDIO_DIR, "Qari1", f"{str(i).zfill(3)}.mp3")
+        for i in range(1, 115)
+    },
+    # Add more Qaris as needed
+}
 # LOAD DATA
 with open("quran.json", "r", encoding="utf-8") as file:
     _QURAN_DATA = json.load(file)

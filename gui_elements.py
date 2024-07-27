@@ -32,8 +32,7 @@ class QuranMemorizer(QMainWindow):
         self.horizontalLayoutTop = QHBoxLayout()
         self.horizontalLayoutBottom = QHBoxLayout()
 
-        self.btnSettings = QPushButton(self.root)
-        self.btnSettings.setText("|||")
+        self.btnSettings = QPushButton("|||", self.root)
         self.btnSettings.setFont(font_second)
         self.horizontalLayoutTop.addWidget(self.btnSettings)
 
@@ -42,8 +41,7 @@ class QuranMemorizer(QMainWindow):
         self.sld.setRange(15, 40)
         self.horizontalLayoutTop.addWidget(self.sld)
 
-        self.btnExit = QPushButton(self.root)
-        self.btnExit.setText("خروج")
+        self.btnExit = QPushButton("خروج", self.root)
         self.btnExit.setFont(font_second)
         self.horizontalLayoutTop.addWidget(self.btnExit)
 
@@ -57,8 +55,7 @@ class QuranMemorizer(QMainWindow):
         self.audio_player = AudioPlayer()
         self.verticalLayout.addWidget(self.audio_player)
 
-        self.btnNext = QPushButton(self.root)
-        self.btnNext.setText("السورة التالية")
+        self.btnNext = QPushButton("السورة التالية", self.root)
         self.btnNext.setFont(font_second)
         self.horizontalLayoutBottom.addWidget(self.btnNext)
 
@@ -68,8 +65,7 @@ class QuranMemorizer(QMainWindow):
         self.cb.setCurrentIndex(0)
         self.horizontalLayoutBottom.addWidget(self.cb)
 
-        self.btnPrev = QPushButton(self.root)
-        self.btnPrev.setText("السورة السابقة")
+        self.btnPrev = QPushButton("السورة السابقة", self.root)
         self.btnPrev.setFont(font_second)
         self.horizontalLayoutBottom.addWidget(self.btnPrev)
 
@@ -87,22 +83,29 @@ class QuranMemorizer(QMainWindow):
 
     def refresh_sura(self, sura):
         self.listWidget.clear()
-        sura_list = get_sura(sura)
-        for aya in sura_list:
-            self.listWidget.addItem(
-                Aya(
-                    aya,
-                    sura_list.index(aya) + 1,
-                    sura_list.index(aya) % 2,
-                    Qt.AlignRight,
+        try:
+            sura_list = get_sura(sura)
+            if not sura_list:
+                print(f"No verses found for sura: {sura}")
+                return
+
+            for index, aya in enumerate(sura_list, start=1):
+                self.listWidget.addItem(
+                    Aya(
+                        aya,
+                        index,
+                        index % 2,
+                        Qt.AlignRight,
+                    )
                 )
-            )
-        sura_number = suras_names.index(sura)
-        self.audio_player.set_sura(sura_number)
+            sura_number = suras_names.index(sura)
+            self.audio_player.set_sura(sura_number)
+        except Exception as e:
+            print(f"Error refreshing sura: {e}")
 
     def next_sura(self):
         current_index = self.cb.currentIndex()
-        if current_index < len(suras_names) - 2:
+        if current_index < len(suras_names) - 1:
             self.cb.setCurrentIndex(current_index + 1)
             self.refresh_sura(self.cb.currentText())
 

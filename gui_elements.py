@@ -14,6 +14,7 @@ from PyQt5.QtGui import QFont
 from aya import Aya
 from quran_data import suras_names, get_sura, qari_styles
 from audio_player import AudioPlayer
+import os
 
 font_main = QFont("KFGQPC HAFS Uthmanic Script", 20)
 font_second = QFont("Calibri", 14)

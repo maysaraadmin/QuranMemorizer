@@ -13,6 +13,7 @@ import sounddevice as sd
 import numpy as np
 import wavio
 import librosa
+import librosa.display
 import matplotlib.pyplot as plt
 import soundfile as sf
 
@@ -65,27 +66,37 @@ class AudioPlayer(QWidget):
         self.current_sura = None
 
     def set_sura(self, sura_number):
-        """Set the current sura and update the audio."""
         self.current_sura = sura_number
         self.set_audio()
 
     def compare_audio(self, recorded_file, reference_file):
-        """Compare the recorded audio with a reference audio file."""
         try:
+            # Read the recorded and reference audio files
             recorded_audio, recorded_sr = sf.read(recorded_file)
             reference_audio, reference_sr = sf.read(reference_file)
 
+            # Check if the sample rates match
             if recorded_sr != reference_sr:
-                print("Sample rates do not match.")
-                return
+                print(
+                    f"Sample rates do not match. Resampling from {recorded_sr} to {reference_sr}."
+                )
+                recorded_audio = librosa.resample(
+                    y=recorded_audio, orig_sr=recorded_sr, target_sr=reference_sr
+                )
+                recorded_sr = reference_sr
 
-            recorded_audio = np.mean(
-                recorded_audio, axis=1
-            )  # Convert to mono if necessary
-            reference_audio = np.mean(
-                reference_audio, axis=1
-            )  # Convert to mono if necessary
+            # Convert to mono if necessary
+            if recorded_audio.ndim > 1:
+                recorded_audio = np.mean(recorded_audio, axis=1)
+            if reference_audio.ndim > 1:
+                reference_audio = np.mean(reference_audio, axis=1)
 
+            # Adjust lengths to match
+            min_length = min(len(recorded_audio), len(reference_audio))
+            recorded_audio = recorded_audio[:min_length]
+            reference_audio = reference_audio[:min_length]
+
+            # Calculate the correlation between the recorded and reference audio
             correlation = np.corrcoef(recorded_audio, reference_audio)[0, 1]
             print(f"Audio correlation: {correlation:.2f}")
 
@@ -102,13 +113,38 @@ class AudioPlayer(QWidget):
         if not self.recording:
             self.recording = True
             self.record_button.setText("Stop Recording")
-            self.record_thread = sd.InputStream(callback=self.audio_callback)
-            self.record_thread.start()
+            self.recorded_audio = None  # Reset recorded audio
+            try:
+                device_info = sd.query_devices()
+                input_device = (
+                    None  # Replace with the index of your desired input device
+                )
+
+                # Find the first available input device if input_device is not set
+                if input_device is None:
+                    for i, dev in enumerate(device_info):
+                        if dev["max_input_channels"] > 0:
+                            input_device = i
+                            break
+
+                self.record_thread = sd.InputStream(
+                    callback=self.audio_callback, device=input_device
+                )
+                self.record_thread.start()
+            except sd.PortAudioError as e:
+                self.recording = False
+                self.record_button.setText("Record")
+                print(f"PortAudioError: {e}")
+            except Exception as e:
+                self.recording = False
+                self.record_button.setText("Record")
+                print(f"Error: {e}")
         else:
             self.recording = False
             self.record_button.setText("Record")
-            self.record_thread.stop()
-            self.record_thread.close()
+            if self.record_thread:
+                self.record_thread.stop()
+                self.record_thread.close()
 
             if self.recorded_audio is not None:
                 wavio.write(
@@ -121,14 +157,13 @@ class AudioPlayer(QWidget):
     def audio_callback(self, indata, frames, time, status):
         """Callback function to handle audio recording."""
         if status:
-            print(status, file=sys.stderr)
+            print(status)
         if self.recorded_audio is None:
             self.recorded_audio = np.array(indata)
         else:
-            self.recorded_audio = np.append(self.recorded_audio, indata)
+            self.recorded_audio = np.append(self.recorded_audio, indata, axis=0)
 
     def plot_waveform(self, audio_file):
-        """Plot the waveform of the audio file."""
         try:
             audio, sr = librosa.load(audio_file)
             plt.figure(figsize=(10, 4))
@@ -139,7 +174,6 @@ class AudioPlayer(QWidget):
             print(f"Error plotting waveform: {e}")
 
     def plot_pitch(self, audio_file):
-        """Plot the pitch of the audio file."""
         try:
             audio, sr = librosa.load(audio_file)
             pitches, magnitudes = librosa.piptrack(y=audio, sr=sr)
@@ -151,12 +185,10 @@ class AudioPlayer(QWidget):
             print(f"Error plotting pitch: {e}")
 
     def update_volume(self):
-        """Update the media player volume based on slider value."""
         volume = self.sldVolume.value()
-        self.mediaPlayer.setVolume(volume / 100)  # Volume is from 0 to 1
+        self.mediaPlayer.setVolume(volume)
 
     def set_audio(self):
-        """Set the audio file for the media player based on selected Qari and sura."""
         if self.current_sura:
             qari = self.comboQari.currentText()
             audio_file = qari_styles.get(qari, {}).get(self.current_sura, None)
@@ -175,11 +207,7 @@ class AudioPlayer(QWidget):
                 )
 
     def play(self):
-        """Play the selected audio."""
-        if (
-            self.current_sura
-            and self.mediaPlayer.mediaStatus() == QMediaPlayer.LoadedMedia
-        ):
+        if self.mediaPlayer.mediaStatus() == QMediaPlayer.LoadedMedia:
             self.mediaPlayer.play()
             print("Playing audio...")
         else:
@@ -191,6 +219,8 @@ class AudioPlayer(QWidget):
                 print("Media not loaded")
 
     def stop(self):
-        """Stop the audio playback."""
         self.mediaPlayer.stop()
         print("Stopping audio...")
+
+
+# Ensure the quran_data module and audio files are correctly placed for the code to run properly.

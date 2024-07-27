@@ -153,7 +153,7 @@ if len(suras_names) != 115:
     )
 
 
-def sura_exist(sura):
+def sura_exists(sura):
     """Check if the sura name or sura number exists."""
     return sura in suras_names[1:] or sura in suras_dict
 
@@ -182,3 +182,22 @@ def get_sura(sura):
         return _get_sura_by_num(sura)
     else:
         raise TypeError("Sura must be a string or integer.")
+
+
+# Sample usage for testing
+if __name__ == "__main__":
+    # Test getting a sura by name
+    sura_name = "الفاتحة"
+    if sura_exists(sura_name):
+        print(f"Sura '{sura_name}' exists.")
+        print(get_sura(sura_name))
+    else:
+        print(f"Sura '{sura_name}' does not exist.")
+
+    # Test getting a sura by number
+    sura_num = 2
+    if sura_exists(sura_num):
+        print(f"Sura number '{sura_num}' exists.")
+        print(get_sura(sura_num))
+    else:
+        print(f"Sura number '{sura_num}' does not exist.")

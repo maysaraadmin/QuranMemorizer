@@ -66,7 +66,7 @@ class QuranMemorizer(QMainWindow):
         self.cb = QComboBox(self.root)
         self.cb.setFont(font_third)
         self.cb.addItems(suras_names)
-        self.cb.setCurrentIndex(0)  # Set default selection
+        self.cb.setCurrentIndex(0)  # Set default selection to the first sura
         self.horizontalLayoutBottom.addWidget(self.cb)
 
         self.btnPrev = QPushButton("السورة السابقة", self.root)
@@ -87,11 +87,14 @@ class QuranMemorizer(QMainWindow):
         self.sld.valueChanged.connect(self.slide_font_size)
         self.btnCompare.clicked.connect(self.compare_recitation)
 
-        # Initialize Qari style
-        self.qari_style = "Qari1"  # Default Qari style, can be changed by user
+        # Initialize qari_style
+        self.qari_style = list(qari_styles.keys())[0]  # Default to the first Qari style
 
-        # Initial sura setup
-        self.refresh_sura(self.cb.currentText())
+        # Set default sura
+        self.default_sura = suras_names[
+            0
+        ]  # Correctly set default sura to the first one
+        self.refresh_sura(self.default_sura)
 
     def refresh_sura(self, sura):
         self.listWidget.clear()
@@ -171,6 +174,9 @@ class QuranMemorizer(QMainWindow):
         except Exception as e:
             print(f"Error comparing recitation: {e}")
 
-    # You may want to add a method to allow users to change the Qari style
     def set_qari_style(self, qari_style):
-        self.qari_style = qari_style
+        if qari_style in qari_styles:
+            self.qari_style = qari_style
+            print(f"Qari style set to: {self.qari_style}")
+        else:
+            print(f"Invalid Qari style: {qari_style}")

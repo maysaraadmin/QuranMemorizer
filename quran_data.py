@@ -1,11 +1,12 @@
 import json
 import os
 
+# Define the directory for audio files
 AUDIO_DIR = "audio/Qari1"
 
 # Define qari styles with audio file paths
 qari_styles = {
-    "Qari1": {i: f"audio/Qari1/{i:03}.mp3" for i in range(1, 115)},
+    "Qari1": {i: os.path.join(AUDIO_DIR, f"{i:03}.mp3") for i in range(1, 115)},
     # Add more Qaris here if needed
 }
 
@@ -15,11 +16,13 @@ if not os.path.exists(quran_data_path):
     raise FileNotFoundError(f"The file {quran_data_path} does not exist.")
 
 # Load Quran data
-with open(quran_data_path, "r", encoding="utf-8") as file:
-    try:
+try:
+    with open(quran_data_path, "r", encoding="utf-8") as file:
         _QURAN_DATA = json.load(file)
-    except json.JSONDecodeError as e:
-        raise ValueError("Error decoding JSON file.") from e
+except json.JSONDecodeError as e:
+    raise ValueError("Error decoding JSON file.") from e
+except IOError as e:
+    raise RuntimeError(f"Error opening or reading file: {e}")
 
 # Define sura names
 suras_names = [
@@ -144,9 +147,10 @@ suras_names = [
 suras_dict = {i: suras_names[i] for i in range(1, len(suras_names))}
 
 # Ensure suras_names has 115 elements
-assert (
-    len(suras_names) == 115
-), "suras_names should have 115 elements including the None placeholder at index 0"
+if len(suras_names) != 115:
+    raise AssertionError(
+        "suras_names should have 115 elements including the None placeholder at index 0"
+    )
 
 
 def sura_exist(sura):

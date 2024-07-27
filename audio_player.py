@@ -13,9 +13,8 @@ import sounddevice as sd
 import numpy as np
 import wavio
 import librosa
-import librosa.display
 import matplotlib.pyplot as plt
-import soundfile as sf  # Ensure soundfile is imported
+import soundfile as sf
 
 from quran_data import qari_styles
 
@@ -66,10 +65,12 @@ class AudioPlayer(QWidget):
         self.current_sura = None
 
     def set_sura(self, sura_number):
+        """Set the current sura and update the audio."""
         self.current_sura = sura_number
         self.set_audio()
 
     def compare_audio(self, recorded_file, reference_file):
+        """Compare the recorded audio with a reference audio file."""
         try:
             recorded_audio, recorded_sr = sf.read(recorded_file)
             reference_audio, reference_sr = sf.read(reference_file)
@@ -97,6 +98,7 @@ class AudioPlayer(QWidget):
             print(f"Error comparing audio: {e}")
 
     def record_audio(self):
+        """Start or stop recording audio."""
         if not self.recording:
             self.recording = True
             self.record_button.setText("Stop Recording")
@@ -117,6 +119,7 @@ class AudioPlayer(QWidget):
                 print("No audio recorded")
 
     def audio_callback(self, indata, frames, time, status):
+        """Callback function to handle audio recording."""
         if status:
             print(status, file=sys.stderr)
         if self.recorded_audio is None:
@@ -125,6 +128,7 @@ class AudioPlayer(QWidget):
             self.recorded_audio = np.append(self.recorded_audio, indata)
 
     def plot_waveform(self, audio_file):
+        """Plot the waveform of the audio file."""
         try:
             audio, sr = librosa.load(audio_file)
             plt.figure(figsize=(10, 4))
@@ -135,6 +139,7 @@ class AudioPlayer(QWidget):
             print(f"Error plotting waveform: {e}")
 
     def plot_pitch(self, audio_file):
+        """Plot the pitch of the audio file."""
         try:
             audio, sr = librosa.load(audio_file)
             pitches, magnitudes = librosa.piptrack(y=audio, sr=sr)
@@ -146,10 +151,12 @@ class AudioPlayer(QWidget):
             print(f"Error plotting pitch: {e}")
 
     def update_volume(self):
+        """Update the media player volume based on slider value."""
         volume = self.sldVolume.value()
-        self.mediaPlayer.setVolume(volume)
+        self.mediaPlayer.setVolume(volume / 100)  # Volume is from 0 to 1
 
     def set_audio(self):
+        """Set the audio file for the media player based on selected Qari and sura."""
         if self.current_sura:
             qari = self.comboQari.currentText()
             audio_file = qari_styles.get(qari, {}).get(self.current_sura, None)
@@ -168,6 +175,7 @@ class AudioPlayer(QWidget):
                 )
 
     def play(self):
+        """Play the selected audio."""
         if (
             self.current_sura
             and self.mediaPlayer.mediaStatus() == QMediaPlayer.LoadedMedia
@@ -183,5 +191,6 @@ class AudioPlayer(QWidget):
                 print("Media not loaded")
 
     def stop(self):
+        """Stop the audio playback."""
         self.mediaPlayer.stop()
         print("Stopping audio...")

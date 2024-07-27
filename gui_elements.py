@@ -28,6 +28,17 @@ class QuranMemorizer(QMainWindow):
         self.setGeometry(100, 100, 800, 600)  # Set initial window size
 
         # Initialize layouts and widgets
+        self.init_ui()
+
+        # Initialize qari_style
+        self.qari_style = list(qari_styles.keys())[0]  # Default to the first Qari style
+
+        # Set default sura
+        self.default_sura = suras_names[1]  # Correctly set default sura to the second
+        self.refresh_sura(self.default_sura)
+
+    def init_ui(self):
+        """Initialize the UI components."""
         self.root = QWidget(self)
         self.setCentralWidget(self.root)
 
@@ -35,6 +46,7 @@ class QuranMemorizer(QMainWindow):
         self.horizontalLayoutTop = QHBoxLayout()
         self.horizontalLayoutBottom = QHBoxLayout()
 
+        # List widget
         self.listWidget = QListWidget(self.root)
         self.listWidget.setWordWrap(True)
         self.listWidget.setFont(font_main)
@@ -44,21 +56,25 @@ class QuranMemorizer(QMainWindow):
         self.audio_player = AudioPlayer()
         self.verticalLayout.addWidget(self.audio_player)
 
+        # Font size slider
         self.sld = QSlider(Qt.Horizontal, self.root)
         self.sld.setValue(20)
         self.sld.setRange(15, 40)
         self.horizontalLayoutTop.addWidget(self.sld)
 
+        # Settings button
         self.btnSettings = QPushButton("|||", self.root)
         self.btnSettings.setFont(font_second)
         self.horizontalLayoutTop.addWidget(self.btnSettings)
 
+        # Exit button
         self.btnExit = QPushButton("خروج", self.root)
         self.btnExit.setFont(font_second)
         self.horizontalLayoutTop.addWidget(self.btnExit)
 
         self.verticalLayout.addLayout(self.horizontalLayoutTop)
 
+        # Navigation buttons and combobox
         self.btnNext = QPushButton("السورة التالية", self.root)
         self.btnNext.setFont(font_second)
         self.horizontalLayoutBottom.addWidget(self.btnNext)
@@ -66,7 +82,7 @@ class QuranMemorizer(QMainWindow):
         self.cb = QComboBox(self.root)
         self.cb.setFont(font_third)
         self.cb.addItems(suras_names)
-        self.cb.setCurrentIndex(0)  # Set default selection to the first sura
+        self.cb.setCurrentIndex(1)  # Set default selection to the second sura
         self.horizontalLayoutBottom.addWidget(self.cb)
 
         self.btnPrev = QPushButton("السورة السابقة", self.root)
@@ -87,16 +103,8 @@ class QuranMemorizer(QMainWindow):
         self.sld.valueChanged.connect(self.slide_font_size)
         self.btnCompare.clicked.connect(self.compare_recitation)
 
-        # Initialize qari_style
-        self.qari_style = list(qari_styles.keys())[0]  # Default to the first Qari style
-
-        # Set default sura
-        self.default_sura = suras_names[
-            1
-        ]  # Correctly set default sura to the first one
-        self.refresh_sura(self.default_sura)
-
     def refresh_sura(self, sura):
+        """Refresh the sura displayed in the list widget."""
         self.listWidget.clear()
         print(f"Refreshing sura: '{sura}'")  # Debug print
         try:
@@ -124,18 +132,21 @@ class QuranMemorizer(QMainWindow):
             print(f"Error refreshing sura: {e}")
 
     def next_sura(self):
+        """Navigate to the next sura."""
         current_index = self.cb.currentIndex()
         if current_index < len(suras_names) - 1:
             self.cb.setCurrentIndex(current_index + 1)
             self.refresh_sura(self.cb.currentText())
 
     def prev_sura(self):
+        """Navigate to the previous sura."""
         current_index = self.cb.currentIndex()
         if current_index > 0:
             self.cb.setCurrentIndex(current_index - 1)
             self.refresh_sura(self.cb.currentText())
 
     def change_sura(self, text):
+        """Change the displayed sura based on combobox selection."""
         if text and text.strip():
             print(f"Selected sura: '{text}'")  # Debug print
             self.refresh_sura(text)
@@ -143,14 +154,14 @@ class QuranMemorizer(QMainWindow):
             print("Selected sura is empty or invalid.")
 
     def slide_font_size(self):
+        """Adjust the font size of the list widget."""
         val = self.sld.value()
         self.listWidget.setFont(QFont("KFGQPC HAFS Uthmanic Script", val))
 
     def compare_recitation(self):
-        # Get the current sura index from the combobox
+        """Compare the user's recitation with the reference recitation."""
         current_sura_name = self.cb.currentText()
 
-        # Check if the current sura name is valid
         if not current_sura_name or current_sura_name not in suras_names:
             print("Invalid sura selected.")
             return
@@ -165,16 +176,20 @@ class QuranMemorizer(QMainWindow):
             print("Reference audio file not found for the selected Qari and Sura.")
             return
 
-        # Assuming 'recorded_audio.wav' is the file containing the user's recitation
         recorded_file = "recorded_audio.wav"
 
-        # Call the compare method in the AudioPlayer
+        # Check if the recorded file exists
+        if not os.path.exists(recorded_file):
+            print(f"Recorded audio file '{recorded_file}' not found.")
+            return
+
         try:
             self.audio_player.compare_audio(recorded_file, reference_file)
         except Exception as e:
             print(f"Error comparing recitation: {e}")
 
     def set_qari_style(self, qari_style):
+        """Set the Qari style."""
         if qari_style in qari_styles:
             self.qari_style = qari_style
             print(f"Qari style set to: {self.qari_style}")

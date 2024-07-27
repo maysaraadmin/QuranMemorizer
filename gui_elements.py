@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from aya import Aya
-from quran_data import suras_names, get_sura
+from quran_data import suras_names, get_sura, qari_styles
 from audio_player import AudioPlayer
 
 font_main = QFont("KFGQPC HAFS Uthmanic Script", 20)
@@ -24,22 +24,34 @@ class QuranMemorizer(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.resize(800, 600)
         self.setWindowTitle("Quran Memorizer")
+        self.setGeometry(100, 100, 800, 600)  # Set initial window size
+
+        # Initialize layouts and widgets
         self.root = QWidget(self)
+        self.setCentralWidget(self.root)
 
         self.verticalLayout = QVBoxLayout(self.root)
         self.horizontalLayoutTop = QHBoxLayout()
         self.horizontalLayoutBottom = QHBoxLayout()
 
-        self.btnSettings = QPushButton("|||", self.root)
-        self.btnSettings.setFont(font_second)
-        self.horizontalLayoutTop.addWidget(self.btnSettings)
+        self.listWidget = QListWidget(self.root)
+        self.listWidget.setWordWrap(True)
+        self.listWidget.setFont(font_main)
+        self.verticalLayout.addWidget(self.listWidget)
+
+        # Initialize audio player
+        self.audio_player = AudioPlayer()
+        self.verticalLayout.addWidget(self.audio_player)
 
         self.sld = QSlider(Qt.Horizontal, self.root)
         self.sld.setValue(20)
         self.sld.setRange(15, 40)
         self.horizontalLayoutTop.addWidget(self.sld)
+
+        self.btnSettings = QPushButton("|||", self.root)
+        self.btnSettings.setFont(font_second)
+        self.horizontalLayoutTop.addWidget(self.btnSettings)
 
         self.btnExit = QPushButton("خروج", self.root)
         self.btnExit.setFont(font_second)
@@ -47,43 +59,48 @@ class QuranMemorizer(QMainWindow):
 
         self.verticalLayout.addLayout(self.horizontalLayoutTop)
 
-        self.listWidget = QListWidget(self.root)
-        self.listWidget.setWordWrap(True)
-        self.listWidget.setFont(font_main)
-        self.verticalLayout.addWidget(self.listWidget)
-
-        self.audio_player = AudioPlayer()
-        self.verticalLayout.addWidget(self.audio_player)
-
         self.btnNext = QPushButton("السورة التالية", self.root)
         self.btnNext.setFont(font_second)
         self.horizontalLayoutBottom.addWidget(self.btnNext)
 
         self.cb = QComboBox(self.root)
         self.cb.setFont(font_third)
-        self.cb.addItems(suras_names[1:])
-        self.cb.setCurrentIndex(0)
+        self.cb.addItems(suras_names)
+        self.cb.setCurrentIndex(0)  # Set default selection
         self.horizontalLayoutBottom.addWidget(self.cb)
 
         self.btnPrev = QPushButton("السورة السابقة", self.root)
         self.btnPrev.setFont(font_second)
         self.horizontalLayoutBottom.addWidget(self.btnPrev)
 
+        self.btnCompare = QPushButton("Compare Recitation", self.root)
+        self.btnCompare.setFont(font_second)
+        self.horizontalLayoutBottom.addWidget(self.btnCompare)
+
         self.verticalLayout.addLayout(self.horizontalLayoutBottom)
 
-        self.setCentralWidget(self.root)
-
+        # Connect signals and slots
         self.btnNext.clicked.connect(self.next_sura)
         self.btnPrev.clicked.connect(self.prev_sura)
         self.btnExit.clicked.connect(self.close)
         self.cb.currentTextChanged.connect(self.change_sura)
         self.sld.valueChanged.connect(self.slide_font_size)
+        self.btnCompare.clicked.connect(self.compare_recitation)
 
-        self.refresh_sura(suras_names[1])
+        # Initialize Qari style
+        self.qari_style = "Qari1"  # Default Qari style, can be changed by user
+
+        # Initial sura setup
+        self.refresh_sura(self.cb.currentText())
 
     def refresh_sura(self, sura):
         self.listWidget.clear()
+        print(f"Refreshing sura: '{sura}'")  # Debug print
         try:
+            if not sura or sura.strip() == "" or sura not in suras_names:
+                print(f"Sura name '{sura}' not found.")
+                return
+
             sura_list = get_sura(sura)
             if not sura_list:
                 print(f"No verses found for sura: {sura}")
@@ -116,8 +133,44 @@ class QuranMemorizer(QMainWindow):
             self.refresh_sura(self.cb.currentText())
 
     def change_sura(self, text):
-        self.refresh_sura(text)
+        if text and text.strip():
+            print(f"Selected sura: '{text}'")  # Debug print
+            self.refresh_sura(text)
+        else:
+            print("Selected sura is empty or invalid.")
 
     def slide_font_size(self):
         val = self.sld.value()
         self.listWidget.setFont(QFont("KFGQPC HAFS Uthmanic Script", val))
+
+    def compare_recitation(self):
+        # Get the current sura index from the combobox
+        current_sura_name = self.cb.currentText()
+
+        # Check if the current sura name is valid
+        if not current_sura_name or current_sura_name not in suras_names:
+            print("Invalid sura selected.")
+            return
+
+        sura_index = suras_names.index(current_sura_name)
+
+        # Determine the Qari style and the corresponding audio file
+        audio_files = qari_styles.get(self.qari_style, {})
+        reference_file = audio_files.get(sura_index)
+
+        if not reference_file:
+            print("Reference audio file not found for the selected Qari and Sura.")
+            return
+
+        # Assuming 'recorded_audio.wav' is the file containing the user's recitation
+        recorded_file = "recorded_audio.wav"
+
+        # Call the compare method in the AudioPlayer
+        try:
+            self.audio_player.compare_audio(recorded_file, reference_file)
+        except Exception as e:
+            print(f"Error comparing recitation: {e}")
+
+    # You may want to add a method to allow users to change the Qari style
+    def set_qari_style(self, qari_style):
+        self.qari_style = qari_style

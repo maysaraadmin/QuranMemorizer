@@ -8,16 +8,35 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import Qt, QUrl
-from quran_data import qari_styles
 import os
+import sounddevice as sd
+import numpy as np
+import wavio
+import librosa
+import librosa.display
+import matplotlib.pyplot as plt
+import soundfile as sf  # Ensure soundfile is imported
+
+from quran_data import qari_styles
 
 
 class AudioPlayer(QWidget):
+
     def __init__(self):
         super().__init__()
 
+        # Initialize layout
         self.verticalLayout = QVBoxLayout(self)
         self.horizontalLayout = QHBoxLayout()
+
+        # Initialize recording variables
+        self.recording = False
+        self.recorded_audio = None
+
+        # Create UI components
+        self.record_button = QPushButton("Record", self)
+        self.record_button.clicked.connect(self.record_audio)
+        self.horizontalLayout.addWidget(self.record_button)
 
         self.btnPlay = QPushButton("Play", self)
         self.horizontalLayout.addWidget(self.btnPlay)
@@ -36,6 +55,7 @@ class AudioPlayer(QWidget):
 
         self.verticalLayout.addLayout(self.horizontalLayout)
 
+        # Initialize media player
         self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.StreamPlayback)
         self.sldVolume.valueChanged.connect(self.update_volume)
 
@@ -44,6 +64,86 @@ class AudioPlayer(QWidget):
         self.comboQari.currentTextChanged.connect(self.set_audio)
 
         self.current_sura = None
+
+    def set_sura(self, sura_number):
+        self.current_sura = sura_number
+        self.set_audio()
+
+    def compare_audio(self, recorded_file, reference_file):
+        try:
+            recorded_audio, recorded_sr = sf.read(recorded_file)
+            reference_audio, reference_sr = sf.read(reference_file)
+
+            if recorded_sr != reference_sr:
+                print("Sample rates do not match.")
+                return
+
+            recorded_audio = np.mean(
+                recorded_audio, axis=1
+            )  # Convert to mono if necessary
+            reference_audio = np.mean(
+                reference_audio, axis=1
+            )  # Convert to mono if necessary
+
+            correlation = np.corrcoef(recorded_audio, reference_audio)[0, 1]
+            print(f"Audio correlation: {correlation:.2f}")
+
+            if correlation > 0.8:
+                print("The recitation matches well with the reference.")
+            else:
+                print("The recitation does not match well with the reference.")
+
+        except Exception as e:
+            print(f"Error comparing audio: {e}")
+
+    def record_audio(self):
+        if not self.recording:
+            self.recording = True
+            self.record_button.setText("Stop Recording")
+            self.record_thread = sd.InputStream(callback=self.audio_callback)
+            self.record_thread.start()
+        else:
+            self.recording = False
+            self.record_button.setText("Record")
+            self.record_thread.stop()
+            self.record_thread.close()
+
+            if self.recorded_audio is not None:
+                wavio.write(
+                    "recorded_audio.wav", self.recorded_audio, 44100, sampwidth=2
+                )
+                print("Recording saved as recorded_audio.wav")
+            else:
+                print("No audio recorded")
+
+    def audio_callback(self, indata, frames, time, status):
+        if status:
+            print(status, file=sys.stderr)
+        if self.recorded_audio is None:
+            self.recorded_audio = np.array(indata)
+        else:
+            self.recorded_audio = np.append(self.recorded_audio, indata)
+
+    def plot_waveform(self, audio_file):
+        try:
+            audio, sr = librosa.load(audio_file)
+            plt.figure(figsize=(10, 4))
+            librosa.display.waveshow(audio, sr=sr)
+            plt.title("Waveform")
+            plt.show()
+        except Exception as e:
+            print(f"Error plotting waveform: {e}")
+
+    def plot_pitch(self, audio_file):
+        try:
+            audio, sr = librosa.load(audio_file)
+            pitches, magnitudes = librosa.piptrack(y=audio, sr=sr)
+            plt.figure(figsize=(10, 4))
+            plt.plot(pitches)
+            plt.title("Pitch")
+            plt.show()
+        except Exception as e:
+            print(f"Error plotting pitch: {e}")
 
     def update_volume(self):
         volume = self.sldVolume.value()
@@ -85,19 +185,3 @@ class AudioPlayer(QWidget):
     def stop(self):
         self.mediaPlayer.stop()
         print("Stopping audio...")
-
-    def set_sura(self, sura_number):
-        self.current_sura = sura_number
-        self.set_audio()
-
-
-# Assuming the other classes remain the same, here is the modified main script:
-if __name__ == "__main__":
-    import sys
-    from PyQt5.QtWidgets import QApplication
-    from gui_elements import QuranMemorizer
-
-    app = QApplication(sys.argv)
-    quran_memorizer = QuranMemorizer()
-    quran_memorizer.show()
-    sys.exit(app.exec_())

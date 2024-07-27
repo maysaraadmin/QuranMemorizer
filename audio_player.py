@@ -31,12 +31,13 @@ class AudioPlayer(QWidget):
 
         self.sldVolume = QSlider(Qt.Horizontal, self)
         self.sldVolume.setValue(50)
+        self.sldVolume.setRange(0, 100)
         self.horizontalLayout.addWidget(self.sldVolume)
 
         self.verticalLayout.addLayout(self.horizontalLayout)
 
         self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.StreamPlayback)
-        self.sldVolume.valueChanged.connect(self.mediaPlayer.setVolume)
+        self.sldVolume.valueChanged.connect(self.update_volume)
 
         self.btnPlay.clicked.connect(self.play)
         self.btnStop.clicked.connect(self.stop)
@@ -44,18 +45,21 @@ class AudioPlayer(QWidget):
 
         self.current_sura = None
 
+    def update_volume(self):
+        volume = self.sldVolume.value()
+        self.mediaPlayer.setVolume(volume)
+
     def set_audio(self):
         if self.current_sura:
             qari = self.comboQari.currentText()
-            audio_file = qari_styles[qari].get(self.current_sura, None)
+            audio_file = qari_styles.get(qari, {}).get(self.current_sura, None)
             if audio_file:
-                # Normalize the path
                 normalized_path = os.path.normpath(audio_file)
                 if os.path.exists(normalized_path):
-                    print(f"Setting audio file: {normalized_path}")
                     self.mediaPlayer.setMedia(
                         QMediaContent(QUrl.fromLocalFile(normalized_path))
                     )
+                    print(f"Setting audio file: {normalized_path}")
                 else:
                     print(f"Audio file not found: {normalized_path}")
             else:
@@ -64,17 +68,23 @@ class AudioPlayer(QWidget):
                 )
 
     def play(self):
-        if self.mediaPlayer.mediaStatus() == QMediaPlayer.NoMedia and self.current_sura:
-            self.set_audio()
-        if self.mediaPlayer.mediaStatus() == QMediaPlayer.LoadedMedia:
-            print("Playing audio...")
+        if (
+            self.current_sura
+            and self.mediaPlayer.mediaStatus() == QMediaPlayer.LoadedMedia
+        ):
             self.mediaPlayer.play()
+            print("Playing audio...")
         else:
-            print("Media not loaded")
+            self.set_audio()
+            if self.mediaPlayer.mediaStatus() == QMediaPlayer.LoadedMedia:
+                self.mediaPlayer.play()
+                print("Playing audio...")
+            else:
+                print("Media not loaded")
 
     def stop(self):
-        print("Stopping audio...")
         self.mediaPlayer.stop()
+        print("Stopping audio...")
 
     def set_sura(self, sura_number):
         self.current_sura = sura_number

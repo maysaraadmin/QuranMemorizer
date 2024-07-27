@@ -1,40 +1,93 @@
+from PyQt5.QtWidgets import (
+    QWidget,
+    QPushButton,
+    QVBoxLayout,
+    QHBoxLayout,
+    QSlider,
+    QComboBox,
+)
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QComboBox
-from PyQt5.QtCore import QUrl
-from quran_data import qari_styles  # Import qari_styles from quran_data
+from PyQt5.QtCore import Qt, QUrl
+from quran_data import qari_styles
+import os
 
 
 class AudioPlayer(QWidget):
     def __init__(self):
         super().__init__()
-        self.player = QMediaPlayer()
 
-        self.layout = QVBoxLayout(self)
+        self.verticalLayout = QVBoxLayout(self)
+        self.horizontalLayout = QHBoxLayout()
 
-        self.qari_selector = QComboBox(self)
-        self.qari_selector.addItems(qari_styles.keys())  # Use keys from qari_styles
-        self.qari_selector.currentTextChanged.connect(self.change_qari)
-        self.layout.addWidget(self.qari_selector)
+        self.btnPlay = QPushButton("Play", self)
+        self.horizontalLayout.addWidget(self.btnPlay)
 
-        self.play_button = QPushButton("Play", self)
-        self.play_button.clicked.connect(self.play_audio)
-        self.layout.addWidget(self.play_button)
+        self.btnStop = QPushButton("Stop", self)
+        self.horizontalLayout.addWidget(self.btnStop)
 
-        self.stop_button = QPushButton("Stop", self)
-        self.stop_button.clicked.connect(self.stop_audio)
-        self.layout.addWidget(self.stop_button)
+        self.comboQari = QComboBox(self)
+        self.comboQari.addItems(qari_styles.keys())
+        self.horizontalLayout.addWidget(self.comboQari)
 
-        self.current_qari = self.qari_selector.currentText()
+        self.sldVolume = QSlider(Qt.Horizontal, self)
+        self.sldVolume.setValue(50)
+        self.horizontalLayout.addWidget(self.sldVolume)
 
-    def change_qari(self, qari):
-        self.current_qari = qari
+        self.verticalLayout.addLayout(self.horizontalLayout)
 
-    def set_audio(self, sura_number):
-        audio_path = qari_styles[self.current_qari][sura_number]
-        self.player.setMedia(QMediaContent(QUrl.fromLocalFile(audio_path)))
+        self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.StreamPlayback)
+        self.sldVolume.valueChanged.connect(self.mediaPlayer.setVolume)
 
-    def play_audio(self):
-        self.player.play()
+        self.btnPlay.clicked.connect(self.play)
+        self.btnStop.clicked.connect(self.stop)
+        self.comboQari.currentTextChanged.connect(self.set_audio)
 
-    def stop_audio(self):
-        self.player.stop()
+        self.current_sura = None
+
+    def set_audio(self):
+        if self.current_sura:
+            qari = self.comboQari.currentText()
+            audio_file = qari_styles[qari].get(self.current_sura, None)
+            if audio_file:
+                # Normalize the path
+                normalized_path = os.path.normpath(audio_file)
+                if os.path.exists(normalized_path):
+                    print(f"Setting audio file: {normalized_path}")
+                    self.mediaPlayer.setMedia(
+                        QMediaContent(QUrl.fromLocalFile(normalized_path))
+                    )
+                else:
+                    print(f"Audio file not found: {normalized_path}")
+            else:
+                print(
+                    f"No audio file found for sura: {self.current_sura} with qari: {qari}"
+                )
+
+    def play(self):
+        if self.mediaPlayer.mediaStatus() == QMediaPlayer.NoMedia and self.current_sura:
+            self.set_audio()
+        if self.mediaPlayer.mediaStatus() == QMediaPlayer.LoadedMedia:
+            print("Playing audio...")
+            self.mediaPlayer.play()
+        else:
+            print("Media not loaded")
+
+    def stop(self):
+        print("Stopping audio...")
+        self.mediaPlayer.stop()
+
+    def set_sura(self, sura_number):
+        self.current_sura = sura_number
+        self.set_audio()
+
+
+# Assuming the other classes remain the same, here is the modified main script:
+if __name__ == "__main__":
+    import sys
+    from PyQt5.QtWidgets import QApplication
+    from gui_elements import QuranMemorizer
+
+    app = QApplication(sys.argv)
+    quran_memorizer = QuranMemorizer()
+    quran_memorizer.show()
+    sys.exit(app.exec_())

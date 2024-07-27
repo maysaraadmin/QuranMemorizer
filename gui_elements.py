@@ -98,7 +98,7 @@ class QuranMemorizer(QMainWindow):
                 )
             )
         sura_number = suras_names.index(sura)
-        self.audio_player.set_audio(sura_number)
+        self.audio_player.set_sura(sura_number)
 
     def next_sura(self):
         current_index = self.cb.currentIndex()

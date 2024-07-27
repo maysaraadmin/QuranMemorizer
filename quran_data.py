@@ -1,21 +1,131 @@
 import json
 import os
 
-# Example paths, replace with your actual paths or URLs
 AUDIO_DIR = "audio/Qari1"
 
 qari_styles = {
     "Qari1": {
-        i: os.path.join(AUDIO_DIR, "Qari1", f"{str(i).zfill(3)}.mp3")
-        for i in range(1, 115)
+        1: "audio/Qari1/001.mp3",
+        2: "audio/Qari1/002.mp3",
+        3: "audio/Qari1/003.mp3",
+        4: "audio/Qari1/004.mp3",
+        5: "audio/Qari1/005.mp3",
+        6: "audio/Qari1/006.mp3",
+        7: "audio/Qari1/007.mp3",
+        8: "audio/Qari1/008.mp3",
+        9: "audio/Qari1/009.mp3",
+        10: "audio/Qari1/010.mp3",
+        11: "audio/Qari1/011.mp3",
+        12: "audio/Qari1/012.mp3",
+        13: "audio/Qari1/013.mp3",
+        14: "audio/Qari1/014.mp3",
+        15: "audio/Qari1/015.mp3",
+        16: "audio/Qari1/016.mp3",
+        17: "audio/Qari1/017.mp3",
+        18: "audio/Qari1/018.mp3",
+        19: "audio/Qari1/019.mp3",
+        20: "audio/Qari1/020.mp3",
+        21: "audio/Qari1/021.mp3",
+        22: "audio/Qari1/022.mp3",
+        23: "audio/Qari1/023.mp3",
+        24: "audio/Qari1/024.mp3",
+        25: "audio/Qari1/025.mp3",
+        26: "audio/Qari1/026.mp3",
+        27: "audio/Qari1/027.mp3",
+        28: "audio/Qari1/028.mp3",
+        29: "audio/Qari1/029.mp3",
+        30: "audio/Qari1/030.mp3",
+        31: "audio/Qari1/031.mp3",
+        32: "audio/Qari1/032.mp3",
+        33: "audio/Qari1/033.mp3",
+        34: "audio/Qari1/034.mp3",
+        35: "audio/Qari1/035.mp3",
+        36: "audio/Qari1/036.mp3",
+        37: "audio/Qari1/037.mp3",
+        38: "audio/Qari1/038.mp3",
+        39: "audio/Qari1/039.mp3",
+        40: "audio/Qari1/040.mp3",
+        41: "audio/Qari1/041.mp3",
+        42: "audio/Qari1/042.mp3",
+        43: "audio/Qari1/043.mp3",
+        44: "audio/Qari1/044.mp3",
+        45: "audio/Qari1/045.mp3",
+        46: "audio/Qari1/046.mp3",
+        47: "audio/Qari1/047.mp3",
+        48: "audio/Qari1/048.mp3",
+        49: "audio/Qari1/049.mp3",
+        50: "audio/Qari1/050.mp3",
+        51: "audio/Qari1/051.mp3",
+        52: "audio/Qari1/052.mp3",
+        53: "audio/Qari1/053.mp3",
+        54: "audio/Qari1/054.mp3",
+        55: "audio/Qari1/055.mp3",
+        56: "audio/Qari1/056.mp3",
+        57: "audio/Qari1/057.mp3",
+        58: "audio/Qari1/058.mp3",
+        59: "audio/Qari1/059.mp3",
+        60: "audio/Qari1/060.mp3",
+        61: "audio/Qari1/061.mp3",
+        62: "audio/Qari1/062.mp3",
+        63: "audio/Qari1/063.mp3",
+        64: "audio/Qari1/064.mp3",
+        65: "audio/Qari1/065.mp3",
+        66: "audio/Qari1/066.mp3",
+        67: "audio/Qari1/067.mp3",
+        68: "audio/Qari1/068.mp3",
+        69: "audio/Qari1/069.mp3",
+        70: "audio/Qari1/070.mp3",
+        71: "audio/Qari1/071.mp3",
+        72: "audio/Qari1/072.mp3",
+        73: "audio/Qari1/073.mp3",
+        74: "audio/Qari1/074.mp3",
+        75: "audio/Qari1/075.mp3",
+        76: "audio/Qari1/076.mp3",
+        77: "audio/Qari1/077.mp3",
+        78: "audio/Qari1/078.mp3",
+        79: "audio/Qari1/079.mp3",
+        80: "audio/Qari1/080.mp3",
+        81: "audio/Qari1/081.mp3",
+        82: "audio/Qari1/082.mp3",
+        83: "audio/Qari1/083.mp3",
+        84: "audio/Qari1/084.mp3",
+        85: "audio/Qari1/085.mp3",
+        86: "audio/Qari1/086.mp3",
+        87: "audio/Qari1/087.mp3",
+        88: "audio/Qari1/088.mp3",
+        89: "audio/Qari1/089.mp3",
+        90: "audio/Qari1/090.mp3",
+        91: "audio/Qari1/091.mp3",
+        92: "audio/Qari1/092.mp3",
+        93: "audio/Qari1/093.mp3",
+        94: "audio/Qari1/094.mp3",
+        95: "audio/Qari1/095.mp3",
+        96: "audio/Qari1/096.mp3",
+        97: "audio/Qari1/097.mp3",
+        98: "audio/Qari1/098.mp3",
+        99: "audio/Qari1/099.mp3",
+        100: "audio/Qari1/100.mp3",
+        101: "audio/Qari1/101.mp3",
+        102: "audio/Qari1/102.mp3",
+        103: "audio/Qari1/103.mp3",
+        104: "audio/Qari1/104.mp3",
+        105: "audio/Qari1/105.mp3",
+        106: "audio/Qari1/106.mp3",
+        107: "audio/Qari1/107.mp3",
+        108: "audio/Qari1/108.mp3",
+        109: "audio/Qari1/109.mp3",
+        110: "audio/Qari1/110.mp3",
+        111: "audio/Qari1/111.mp3",
+        112: "audio/Qari1/112.mp3",
+        113: "audio/Qari1/113.mp3",
+        114: "audio/Qari1/114.mp3",
     },
-    # Add more Qaris as needed
+    # Add more Qaris...
 }
-# LOAD DATA
-with open("quran.json", "r", encoding="utf-8") as file:
+
+with open("quran_data/quran.json", "r", encoding="utf-8") as file:
     _QURAN_DATA = json.load(file)
 
-# GLOBAL VARS
 suras_names = [
     None,
     "الفاتحة",
@@ -136,13 +246,11 @@ suras_names = [
 
 suras_dict = {i: suras_names[i] for i in range(1, len(suras_names))}
 
-# Ensure the length is correct
 assert (
     len(suras_names) == 115
 ), "suras_names should have 115 elements including the None placeholder at index 0"
 
 
-# FUNCTIONS TO HANDLE SURAS AND AYAS
 def sura_exist(sura):
     """CHECK FOR SURA NAME OR SURA NUMBER"""
     return sura in suras_names[1:] or sura in suras_dict
@@ -154,58 +262,14 @@ def _get_sura_by_name(sura_name):
             return [aya["text"] for aya in s["verses"]]
 
 
-def _get_sura_by_number(sura_number):
-    sura_name = suras_dict[sura_number]
-    return _get_sura_by_name(sura_name)
-
-
-def get_sura(sura_name_or_number):
-    """GET SURA BY NAME OR BY NUMBER"""
-    if sura_exist(sura_name_or_number):
-        if isinstance(sura_name_or_number, str):
-            return _get_sura_by_name(sura_name_or_number)
-        elif isinstance(sura_name_or_number, int):
-            return _get_sura_by_number(sura_name_or_number)
-    else:
-        return ["لم تقم بتحديد السورة"]
-
-
-def get_sura_info(sura_name_or_number):
-    """GET SURA INFO BY NAME OR BY NUMBER"""
-    if sura_exist(sura_name_or_number):
-        if isinstance(sura_name_or_number, str):
-            return _get_sura_info_by_name(sura_name_or_number)
-        elif isinstance(sura_name_or_number, int):
-            return _get_sura_info_by_number(sura_name_or_number)
-    else:
-        print("sura not exist")
-        return None
-
-
-def _get_sura_info_by_name(sura_name):
-    info = []
+def _get_sura_by_num(sura_num):
     for s in _QURAN_DATA:
-        if s["name"] == sura_name:
-            for key in s:
-                if key != "verses":
-                    info.append((key, s[key]))
-    return info
+        if s["number"] == sura_num:
+            return [aya["text"] for aya in s["verses"]]
 
 
-def _get_sura_info_by_number(sura_number):
-    sura_name = suras_dict[sura_number]
-    return _get_sura_info_by_name(sura_name)
-
-
-def get_sura_number(sura):
-    for key, value in suras_dict.items():
-        if sura == value:
-            return key
-
-
-def get_sura_from_aya(aya):
-    for sura in suras_names[1:]:
-        s = get_sura(sura)
-        if aya in s:
-            return sura
-    return None
+def get_sura(sura):
+    if isinstance(sura, str):
+        return _get_sura_by_name(sura)
+    if isinstance(sura, int):
+        return _get_sura_by_num(sura)

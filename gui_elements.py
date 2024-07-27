@@ -92,7 +92,7 @@ class QuranMemorizer(QMainWindow):
 
         # Set default sura
         self.default_sura = suras_names[
-            0
+            1
         ]  # Correctly set default sura to the first one
         self.refresh_sura(self.default_sura)
 

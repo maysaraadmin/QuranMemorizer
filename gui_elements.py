@@ -7,10 +7,10 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QWidget,
-    QLabel,  # Added QLabel for displaying sura name
+    QLabel,
 )
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QColor
 from aya import Aya
 from quran_data import suras_names, get_sura, qari_styles
 from audio_player import AudioPlayer
@@ -47,8 +47,8 @@ class QuranMemorizer(QMainWindow):
 
         # Label to display the current sura name
         self.lblSuraName = QLabel(self.root)
-        self.lblSuraName.setFont(QFont("KFGQPC HAFS Uthmanic Script", 24))  # Larger font for sura name
-        self.lblSuraName.setAlignment(Qt.AlignCenter)  # Center-align the text
+        self.lblSuraName.setFont(QFont("KFGQPC HAFS Uthmanic Script", 24))
+        self.lblSuraName.setAlignment(Qt.AlignCenter)
         self.verticalLayout.addWidget(self.lblSuraName)
 
         # List widget
@@ -59,6 +59,7 @@ class QuranMemorizer(QMainWindow):
 
         # Initialize audio player
         self.audio_player = AudioPlayer()
+        self.audio_player.highlight_ayah = self.highlight_ayah  # Connect the highlight method
         self.verticalLayout.addWidget(self.audio_player)
 
         # Font size slider
@@ -125,3 +126,12 @@ class QuranMemorizer(QMainWindow):
         if self.current_sura_index > 1:
             self.current_sura_index -= 1
             self.refresh_sura(suras_names[self.current_sura_index])
+
+    def highlight_ayah(self, ayah_number):
+        # Highlight the current ayah in the list widget
+        for i in range(self.listWidget.count()):
+            item = self.listWidget.item(i)
+            if i + 1 == ayah_number:
+                item.setBackground(QColor("yellow"))  # Highlight the current ayah
+            else:
+                item.setBackground(QColor("white"))  # Reset the background for other ayahs

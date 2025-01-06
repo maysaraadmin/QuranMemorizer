@@ -23,7 +23,7 @@ class QuranMemorizer(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Quran Memorizer")
+        self.setWindowTitle("قاري")
         self.setGeometry(100, 100, 800, 600)
 
         # Initialize layouts and widgets
@@ -59,7 +59,6 @@ class QuranMemorizer(QMainWindow):
 
         # Initialize audio player
         self.audio_player = AudioPlayer()
-        self.audio_player.highlight_ayah = self.highlight_ayah  # Connect the highlight method
         self.verticalLayout.addWidget(self.audio_player)
 
         # Font size slider
@@ -70,12 +69,12 @@ class QuranMemorizer(QMainWindow):
         self.horizontalLayoutTop.addWidget(self.sld)
 
         # Navigation buttons
-        self.btnPrev = QPushButton("Previous Sura", self.root)
+        self.btnPrev = QPushButton("السورة السابقة", self.root)
         self.btnPrev.setFont(font_second)
         self.btnPrev.clicked.connect(self.prev_sura)
         self.horizontalLayoutTop.addWidget(self.btnPrev)
 
-        self.btnNext = QPushButton("Next Sura", self.root)
+        self.btnNext = QPushButton("السورة الاحقة", self.root)
         self.btnNext.setFont(font_second)
         self.btnNext.clicked.connect(self.next_sura)
         self.horizontalLayoutTop.addWidget(self.btnNext)
@@ -83,6 +82,7 @@ class QuranMemorizer(QMainWindow):
         # Exit button
         self.btnExit = QPushButton("خروج", self.root)
         self.btnExit.setFont(font_second)
+        self.btnExit.clicked.connect(self.close)
         self.horizontalLayoutTop.addWidget(self.btnExit)
 
         self.verticalLayout.addLayout(self.horizontalLayoutTop)
@@ -126,12 +126,3 @@ class QuranMemorizer(QMainWindow):
         if self.current_sura_index > 1:
             self.current_sura_index -= 1
             self.refresh_sura(suras_names[self.current_sura_index])
-
-    def highlight_ayah(self, ayah_number):
-        # Highlight the current ayah in the list widget
-        for i in range(self.listWidget.count()):
-            item = self.listWidget.item(i)
-            if i + 1 == ayah_number:
-                item.setBackground(QColor("yellow"))  # Highlight the current ayah
-            else:
-                item.setBackground(QColor("white"))  # Reset the background for other ayahs

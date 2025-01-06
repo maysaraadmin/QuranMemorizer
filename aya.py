@@ -25,4 +25,4 @@ class Aya(QListWidgetItem):
     def set_text(self, text, number):
         if not isinstance(text, str) or not isinstance(number, int):
             raise ValueError("text must be a string and number must be an integer.")
-        self.setText(text if text == BESM_ALAH else f"{text} ({number})")
+        self.setText(f"{text} ({number})" if text != BESM_ALAH else text)

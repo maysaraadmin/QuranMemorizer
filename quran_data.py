@@ -148,41 +148,30 @@ suras_dict = {i: suras_names[i] for i in range(1, len(suras_names))}
 
 # Ensure suras_names has 115 elements
 if len(suras_names) != 115:
-    raise AssertionError(
-        "suras_names should have 115 elements including the None placeholder at index 0"
-    )
-
+    raise AssertionError("suras_names should have 115 elements including the None placeholder at index 0")
 
 def sura_exists(sura):
-    """Check if the sura name or sura number exists."""
     return sura in suras_names[1:] or sura in suras_dict
 
-
 def _get_sura_by_name(sura_name):
-    """Retrieve sura text by its name."""
     for s in _QURAN_DATA:
         if s.get("name") == sura_name:
             return [aya.get("text") for aya in s.get("verses", [])]
     raise ValueError(f"Sura name '{sura_name}' not found.")
 
-
 def _get_sura_by_num(sura_num):
-    """Retrieve sura text by its number."""
     for s in _QURAN_DATA:
         if s.get("number") == sura_num:
             return [aya.get("text") for aya in s.get("verses", [])]
     raise ValueError(f"Sura number '{sura_num}' not found.")
 
-
 def get_sura(sura):
-    """Retrieve sura text by name or number."""
     if isinstance(sura, str):
         return _get_sura_by_name(sura)
     elif isinstance(sura, int):
         return _get_sura_by_num(sura)
     else:
         raise TypeError("Sura must be a string or integer.")
-
 
 # Sample usage for testing
 if __name__ == "__main__":

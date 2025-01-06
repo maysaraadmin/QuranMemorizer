@@ -19,7 +19,11 @@ class AudioPlayer(QWidget):
 
         self.btnStop = QPushButton("Stop", self)
         self.horizontalLayout.addWidget(self.btnStop)
-
+         
+         
+        self.btnStop = QPushButton("Stop", self)
+        self.horizontalLayout.addWidget(self.btnStop)
+        
         self.comboQari = QComboBox(self)
         self.comboQari.addItems(qari_styles.keys())
         self.horizontalLayout.addWidget(self.comboQari)

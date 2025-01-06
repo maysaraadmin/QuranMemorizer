@@ -1,4 +1,13 @@
-from PyQt5.QtWidgets import QMainWindow, QPushButton, QSlider, QComboBox, QListWidget, QVBoxLayout, QHBoxLayout, QWidget
+from PyQt5.QtWidgets import (
+    QMainWindow,
+    QPushButton,
+    QSlider,
+    QComboBox,
+    QListWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QWidget,
+)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from aya import Aya
@@ -50,10 +59,7 @@ class QuranMemorizer(QMainWindow):
         self.sld.setRange(15, 40)
         self.horizontalLayoutTop.addWidget(self.sld)
 
-        # Settings button
-        self.btnSettings = QPushButton("|||", self.root)
-        self.btnSettings.setFont(font_second)
-        self.horizontalLayoutTop.addWidget(self.btnSettings)
+
 
         # Exit button
         self.btnExit = QPushButton("خروج", self.root)
@@ -62,27 +68,6 @@ class QuranMemorizer(QMainWindow):
 
         self.verticalLayout.addLayout(self.horizontalLayoutTop)
 
-        # Navigation buttons and combobox
-        self.btnNext = QPushButton("السورة التالية", self.root)
-        self.btnNext.setFont(font_second)
-        self.horizontalLayoutBottom.addWidget(self.btnNext)
-
-        self.cb = QComboBox(self.root)
-        self.cb.setFont(font_third)
-        self.cb.addItems(suras_names)
-        self.cb.setCurrentIndex(1)
-        self.horizontalLayoutBottom.addWidget(self.cb)
-
-        self.btnPrev = QPushButton("السورة السابقة", self.root)
-        self.btnPrev.setFont(font_second)
-        self.horizontalLayoutBottom.addWidget(self.btnPrev)
-
-        # Connect signals and slots
-        self.btnNext.clicked.connect(self.next_sura)
-        self.btnPrev.clicked.connect(self.prev_sura)
-        self.btnExit.clicked.connect(self.close)
-        self.cb.currentTextChanged.connect(self.change_sura)
-        self.sld.valueChanged.connect(self.slide_font_size)
 
     def refresh_sura(self, sura):
         self.listWidget.clear()

@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QWidget,
+    QLabel,  # Added QLabel for displaying sura name
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
@@ -43,6 +44,12 @@ class QuranMemorizer(QMainWindow):
         self.verticalLayout = QVBoxLayout(self.root)
         self.horizontalLayoutTop = QHBoxLayout()
         self.horizontalLayoutBottom = QHBoxLayout()
+
+        # Label to display the current sura name
+        self.lblSuraName = QLabel(self.root)
+        self.lblSuraName.setFont(QFont("KFGQPC HAFS Uthmanic Script", 24))  # Larger font for sura name
+        self.lblSuraName.setAlignment(Qt.AlignCenter)  # Center-align the text
+        self.verticalLayout.addWidget(self.lblSuraName)
 
         # List widget
         self.listWidget = QListWidget(self.root)
@@ -83,9 +90,15 @@ class QuranMemorizer(QMainWindow):
         self.listWidget.clear()
         if sura and sura.strip() and sura in suras_names:
             try:
+                # Update the sura name label
+                self.lblSuraName.setText(sura)
+
+                # Load the sura content
                 sura_list = get_sura(sura)
                 for index, aya in enumerate(sura_list, start=1):
                     self.listWidget.addItem(Aya(aya, index, index % 2, Qt.AlignRight))
+
+                # Set the audio player to the current sura
                 sura_number = suras_names.index(sura)
                 self.audio_player.set_sura(sura_number)
             except Exception as e:

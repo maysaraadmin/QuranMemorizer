@@ -32,7 +32,8 @@ class QuranMemorizer(QMainWindow):
         self.qari_style = list(qari_styles.keys())[0]
 
         # Set default sura
-        self.default_sura = suras_names[1]
+        self.current_sura_index = 1  # Start with the first sura (الفاتحة)
+        self.default_sura = suras_names[self.current_sura_index]
         self.refresh_sura(self.default_sura)
 
     def init_ui(self):
@@ -59,6 +60,17 @@ class QuranMemorizer(QMainWindow):
         self.sld.setRange(15, 40)
         self.sld.valueChanged.connect(self.slide_font_size)
         self.horizontalLayoutTop.addWidget(self.sld)
+
+        # Navigation buttons
+        self.btnPrev = QPushButton("Previous Sura", self.root)
+        self.btnPrev.setFont(font_second)
+        self.btnPrev.clicked.connect(self.prev_sura)
+        self.horizontalLayoutTop.addWidget(self.btnPrev)
+
+        self.btnNext = QPushButton("Next Sura", self.root)
+        self.btnNext.setFont(font_second)
+        self.btnNext.clicked.connect(self.next_sura)
+        self.horizontalLayoutTop.addWidget(self.btnNext)
 
         # Exit button
         self.btnExit = QPushButton("خروج", self.root)
@@ -90,3 +102,13 @@ class QuranMemorizer(QMainWindow):
             print(f"Qari style set to: {self.qari_style}")
         else:
             print(f"Invalid Qari style: {qari_style}")
+
+    def next_sura(self):
+        if self.current_sura_index < len(suras_names) - 1:
+            self.current_sura_index += 1
+            self.refresh_sura(suras_names[self.current_sura_index])
+
+    def prev_sura(self):
+        if self.current_sura_index > 1:
+            self.current_sura_index -= 1
+            self.refresh_sura(suras_names[self.current_sura_index])

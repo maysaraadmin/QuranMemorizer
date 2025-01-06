@@ -57,9 +57,8 @@ class QuranMemorizer(QMainWindow):
         self.sld = QSlider(Qt.Horizontal, self.root)
         self.sld.setValue(20)
         self.sld.setRange(15, 40)
+        self.sld.valueChanged.connect(self.slide_font_size)
         self.horizontalLayoutTop.addWidget(self.sld)
-
-
 
         # Exit button
         self.btnExit = QPushButton("خروج", self.root)
@@ -67,7 +66,6 @@ class QuranMemorizer(QMainWindow):
         self.horizontalLayoutTop.addWidget(self.btnExit)
 
         self.verticalLayout.addLayout(self.horizontalLayoutTop)
-
 
     def refresh_sura(self, sura):
         self.listWidget.clear()
@@ -82,22 +80,6 @@ class QuranMemorizer(QMainWindow):
                 print(f"Error refreshing sura: {e}")
         else:
             print(f"Sura name '{sura}' not found.")
-
-    def next_sura(self):
-        current_index = self.cb.currentIndex()
-        if current_index < len(suras_names) - 1:
-            self.cb.setCurrentIndex(current_index + 1)
-            self.refresh_sura(self.cb.currentText())
-
-    def prev_sura(self):
-        current_index = self.cb.currentIndex()
-        if current_index > 0:
-            self.cb.setCurrentIndex(current_index - 1)
-            self.refresh_sura(self.cb.currentText())
-
-    def change_sura(self, text):
-        if text and text.strip():
-            self.refresh_sura(text)
 
     def slide_font_size(self):
         self.listWidget.setFont(QFont("KFGQPC HAFS Uthmanic Script", self.sld.value()))

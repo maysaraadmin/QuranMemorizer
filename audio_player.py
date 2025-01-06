@@ -19,11 +19,7 @@ class AudioPlayer(QWidget):
 
         self.btnStop = QPushButton("Stop", self)
         self.horizontalLayout.addWidget(self.btnStop)
-         
-         
-        self.btnStop = QPushButton("Stop", self)
-        self.horizontalLayout.addWidget(self.btnStop)
-        
+
         self.comboQari = QComboBox(self)
         self.comboQari.addItems(qari_styles.keys())
         self.horizontalLayout.addWidget(self.comboQari)
@@ -61,6 +57,7 @@ class AudioPlayer(QWidget):
                 print(f"Setting audio file: {audio_file}")
             else:
                 print(f"Audio file not found: {audio_file}")
+                self.mediaPlayer.setMedia(QMediaContent())  # Clear media if file not found
 
     def play(self):
         if self.mediaPlayer.mediaStatus() != QMediaPlayer.LoadedMedia:
